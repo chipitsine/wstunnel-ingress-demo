@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wstunnel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wstunnel
+  template:
+    metadata:
+      labels:
+        app: wstunnel
+    spec:
+      containers:
+      - name: wstunnel
+        image: docker.io/chipitsine/wstunnel:latest
+        imagePullPolicy: Always
+        command: [ "/wstunnel", "--server", "ws://0.0.0.0:8080" ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wstunnel
+spec:
+  selector:
+    app: wstunnel
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-wstunnel
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "shipitsin-ilia.cloud.okteto.net"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/tunnel"
+        backend:
+          service:
+            name: wstunnel
+            port:
+              number: 80
