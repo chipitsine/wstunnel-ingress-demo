@@ -1,1 +1,1 @@
-# wstunnel-ingress-demo
+# пример tcp-туннеля через wstunnel
